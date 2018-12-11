@@ -7,15 +7,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <style>
+        .sm_template {
+	        display:none;
+        }
     </style>
 </head>
 
 <body>
-
+    <br><br>
+    <div class="col-md-4 col-sm-6 mb-4 sm_template" style="border: 1px dashed black;">
+        <div id="movieTitle" style="width: 100%; text-decoration: none;"></div>
+        <div id="headline" style="width: 100%; text-decoration: none;"></div>
+        <div id="rating" style="width: 100%; text-decoration: none;"></div>
+        <div id="byline" style="width: 100%; text-decoration: none;"></div>
+        <div id="publicationDate" style="width: 100%;  text-decoration: none;"></div>
+        <div id="shortSummary" style="width: 100%; text-decoration: none;"></div>
+        <div style="width: 100%; text-decoration: none;">Image:</div>
+        <img id="movieImage" class="img-fluid" src="" alt="">
+        <div id="noImage" style="width: 100%; text-align: center; text-decoration: none; display: none;"><strong>There is no image.</strong></div>
+    </div>
+          
+    <div class="container">
+            <h3 class="my-4">Please enter movie name to filter:</h3>
+            <form action="#">
+                    <input id="formTerm" type="text">
+                    <button id="formFilterButton">Search</button>
+            </form>
+            <h3 class="my-4">Search Results:</h3>
+            <div id="search_container" class="row">
+        
+            </div>
+        </div>
 </body>
 <script   src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script>
+
+    let url = "https://api.nytimes.com/svc/movies/v2/reviews/search.json?api-key=e339a5be768f459aaa4e301da53d2281&query=";
+
+    $('#formFilterButton').on('click', function(event) {
+        //event.stopPropagation();
+        // Get data
+        $.get(url+$('#formTerm').val(), function(data) {
+            $('#search_container').html('');
+            if (data.num_results == 0) {
+                $('#search_container').append($('<div>').html("Nothing has been found for: <strong>" + $('#formTerm').val() + "</strong> search."));
+            } else {
+                $.each(data.results, function(k,v) {
+                    var movie = $(".sm_template").clone();
+					movie.removeClass("sm_template");
+                    movie.find("#movieTitle").html("Movie: " + v.display_title);
+                    movie.find("#headline").html("Headline: " + v.headline);
+                    movie.find("#rating").html("Rating: " + v.mpaa_rating);
+                    movie.find("#byline").html("Byline: " + v.byline);
+                    movie.find("#publicationDate").html("Publication Date: " + v.publication_date);
+                    movie.find("#shortSummary").html("Short Summary: " + v.summary_short);
+                    if (v.multimedia !== null) {
+                        movie.find("#movieImage").attr('src', v.multimedia.src).attr('width', v.multimedia.width).attr('height', v.multimedia.height);
+                    } else {
+                        movie.find("#noImage").show();
+                    }
+                    $('#search_container').append(movie);
+                })
+            }
+        
+        
+        console.log(data);
+        
+        });
+    });
+   
+
+
+
 
 </script>
 </body>
